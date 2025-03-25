@@ -1,4 +1,5 @@
 import flask
+import re
 
 
 # TODO: change this to your academic email
@@ -25,5 +26,13 @@ def check_password():
     data = flask.request.get_json() or {}
     pw = data.get("password", "")
 
-    # FIXME: to be implemented
-    return flask.jsonify({"valid": False, "reason": "Not implemented"}), 501
+    if len(pw) < 8:
+        return flask.jsonify({"valid": False, "reason": "Password must be at least 8 characters long."}), 400
+    if not any(c.isupper() for c in pw):
+        return flask.jsonify({"valid": False, "reason": "Password must contain at least one uppercase letter."}), 400
+    if not any(c.isdigit() for c in pw):
+        return flask.jsonify({"valid": False, "reason": "Password must contain at least one digit."}), 400
+    if not re.search(r"[!@#$%^&*]", pw):
+        return flask.jsonify({"valid": False, "reason": "Password must contain at least one special character (!@#$%^&*)."}), 400
+
+    return flask.jsonify({"valid": True, "reason": "Password meets all requirements."}), 200
